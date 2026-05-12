@@ -1,0 +1,276 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ROLE {
+  job_seeker
+  employer
+  admin
+
+  @@map("role")
+}
+
+enum JOB_TYPE {
+  remote @map("remote")
+  on_site @map("on-site")
+  hybrid
+  full_time @map("full-time")
+  part_time @map("part-time")
+  internship
+
+  @@map("job_type")
+}
+
+enum APPLICATION_STATUS {
+  pending
+  reviewing
+  shortlisted
+  interviewing
+  offered
+  rejected
+  withdrawn
+
+  @@map("application_status")
+}
+
+//1
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  name String
+  email String @unique
+  password String
+  role ROLE
+  is_banned Boolean @default(false)
+  token_version Int @default(0)
+  email_verified Boolean @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  company Company? @relation(fields: [company_id], references: [id])
+  company_id String? @db.Uuid
+
+  profile Profile?
+  resumes Resume[]
+  posts Post[]
+  job_applications JobApplication[]
+  saved_jobs SavedJob[]
+  skill_users SkillUser[]
+
+  @@map("users")
+}
+
+//2
+model Company {
+  id String @id @default(uuid()) @db.Uuid
+  name String
+  slug String @unique
+  logo_url String
+  website_url String
+  description String @db.Text
+  verified Boolean @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  employees User[]
+  posts Post[]
+
+  @@map("companies")
+}
+
+//3
+model Profile {
+  user_id String @id @db.Uuid
+  photo_url String
+  birthday DateTime @db.Date
+  bio String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("profiles")
+}
+
+//4
+model JobType {
+  id String @id @default(uuid()) @db.Uuid
+  name JOB_TYPE
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  job_type_posts JobTypePost[]
+
+  @@map("job_types")
+}
+
+//5
+model Category {
+  id String @id @default(uuid()) @db.Uuid
+  name String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  category_posts CategoryPost[]
+
+  @@map("categories")
+}
+
+//6
+model Skill {
+  id String @id @default(uuid()) @db.Uuid
+  name String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  skill_posts SkillPost[]
+  skill_users SkillUser[]
+
+  @@map("skills")
+}
+
+//7
+model Resume {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  name String
+  file_url String
+  is_default Boolean @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  job_application JobApplication[]
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("resumes")
+}
+
+//8
+model Post {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  company_id String @db.Uuid
+  title String
+  description String @db.Text
+  city String
+  country String
+  min_salary Int
+  max_salary Int
+  salary_type String
+  expires_at DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  job_type_posts JobTypePost[]
+  category_posts CategoryPost[]
+  skill_posts SkillPost[]
+  job_applications JobApplication[]
+  user User @relation(fields: [user_id], references: [id])
+  company Company @relation(fields: [company_id], references: [id])
+  saved_jobs SavedJob[]
+
+  @@map("posts")
+}
+
+//9
+model JobApplication {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  post_id String @db.Uuid
+  status APPLICATION_STATUS
+  resume_id String @db.Uuid
+  applied_resume_url String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+  post Post @relation(fields: [post_id], references: [id])
+  resume Resume @relation(fields: [resume_id], references: [id])
+
+  @@unique([user_id, post_id])
+  @@map("job_applications")
+}
+
+//10
+model SavedJob {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  post_id String @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+  post Post @relation(fields: [post_id], references: [id])
+
+  @@unique([user_id, post_id])
+  @@map("saved_jobs")
+}
+
+//11
+model CategoryPost {
+  id String @id @default(uuid()) @db.Uuid
+  category_id String @db.Uuid
+  post_id String @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  category Category @relation(fields: [category_id], references: [id])
+  post Post @relation(fields: [post_id], references: [id])
+
+  @@unique([category_id, post_id])
+  @@map("category_posts")
+}
+
+//12
+model JobTypePost {
+  id String @id @default(uuid()) @db.Uuid
+  job_type_id String @db.Uuid
+  post_id String @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  post Post @relation(fields: [post_id], references: [id])
+  job_type JobType @relation(fields: [job_type_id], references: [id])
+
+  @@unique([job_type_id, post_id])
+  @@map("job_type_posts")
+}
+
+//13
+model SkillPost {
+  id String @id @default(uuid()) @db.Uuid
+  skill_id String @db.Uuid
+  post_id String @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  post Post @relation(fields: [post_id], references: [id])
+  skill Skill @relation(fields: [skill_id], references: [id])
+
+  @@unique([skill_id, post_id])
+  @@map("skill_posts")
+}
+
+//14
+model SkillUser {
+  id String @id @default(uuid()) @db.Uuid
+  skill_id String @db.Uuid
+  user_id String @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  skill Skill @relation(fields: [skill_id], references: [id])
+  user User @relation(fields: [user_id], references: [id])
+
+  @@unique([skill_id, user_id])
+  @@map("skill_users")
+}
