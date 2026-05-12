@@ -90,9 +90,9 @@ model Company {
 //3
 model Profile {
   user_id String @id @db.Uuid
-  photo_url String
-  birthday DateTime @db.Date
-  bio String
+  photo_url String?
+  birthday DateTime? @db.Date
+  bio String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 

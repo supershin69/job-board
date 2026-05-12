@@ -29,10 +29,21 @@ export const authConfig: NextAuthConfig = {
             const isOnAdminPath = nextUrl.pathname.startsWith("/dashboard/admin");
             const isOnEmployerPath = nextUrl.pathname.startsWith("/dashboard/employer");
             const isOnSeekerPath = nextUrl.pathname.startsWith("/dashboard/seeker");
+            const isDashboardPath = nextUrl.pathname === "/dashboard";
             const isOnAuthPage = nextUrl.pathname === '/login' || nextUrl.pathname === '/register';
 
             if (!isLoggedIn && (isOnAdminPath || isOnEmployerPath || isOnSeekerPath) && !isOnAuthPage) {
                 return false;
+            }
+
+            if (isDashboardPath) {
+                if (role === 'admin') {
+                    return Response.redirect(new URL('/dashboard/admin', nextUrl));
+                }
+                if (role === "employer") {
+                    return Response.redirect(new URL('/dashboard/employer', nextUrl));
+                }
+                return Response.redirect(new URL('/dashboard/seeker', nextUrl));
             }
 
             if (isOnAdminPath && role !== 'admin') {

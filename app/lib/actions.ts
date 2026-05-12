@@ -6,7 +6,6 @@ import z from "zod";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { auth } from "@/auth";
 
 const registerSchema = z.object({
     name: z.string().min(2).max(100),
@@ -44,7 +43,10 @@ export async function registerUser(formData: FormData) {
                 name,
                 email,
                 password: hashedPassword,
-                role
+                role,
+                profile: {
+                    create: {}
+                }
             },
         });
     } catch (error) {

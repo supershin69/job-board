@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "profiles" ALTER COLUMN "photo_url" DROP NOT NULL,
+ALTER COLUMN "birthday" DROP NOT NULL,
+ALTER COLUMN "bio" DROP NOT NULL;
