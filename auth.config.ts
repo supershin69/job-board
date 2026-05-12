@@ -26,9 +26,9 @@ export const authConfig: NextAuthConfig = {
             const isLoggedIn = !!user;
             const role = user?.role;
 
-            const isOnAdminPath = nextUrl.pathname.startsWith("/admin");
-            const isOnEmployerPath = nextUrl.pathname.startsWith("/employer");
-            const isOnSeekerPath = nextUrl.pathname.startsWith("/seeker");
+            const isOnAdminPath = nextUrl.pathname.startsWith("/dashboard/admin");
+            const isOnEmployerPath = nextUrl.pathname.startsWith("/dashboard/employer");
+            const isOnSeekerPath = nextUrl.pathname.startsWith("/dashboard/seeker");
             const isOnAuthPage = nextUrl.pathname === '/login' || nextUrl.pathname === '/register';
 
             if (!isLoggedIn && (isOnAdminPath || isOnEmployerPath || isOnSeekerPath) && !isOnAuthPage) {
@@ -40,20 +40,20 @@ export const authConfig: NextAuthConfig = {
             }
 
             if (isOnEmployerPath && role !== 'employer') {
-                return Response.redirect(new URL('/seeker/dashboard', nextUrl));
+                return Response.redirect(new URL('/dashboard/seeker', nextUrl));
             }
 
             if (isOnSeekerPath && role !== 'job_seeker') {
-                return Response.redirect(new URL('/employer/dashboard', nextUrl))
+                return Response.redirect(new URL('/dashboard/employer', nextUrl))
             }
 
             if (isOnAuthPage && isLoggedIn) {
                 if (role === 'admin') {
-                    return Response.redirect(new URL('/admin/dashboard', nextUrl));
+                    return Response.redirect(new URL('/dashboard/admin', nextUrl));
                 } else if (role === 'employer') {
-                    return Response.redirect(new URL('/employer/dashboard', nextUrl));
+                    return Response.redirect(new URL('/dashboard/employer', nextUrl));
                 } else if (role === 'job_seeker') {
-                    return Response.redirect(new URL('/seeker/dashboard', nextUrl));
+                    return Response.redirect(new URL('/dashboard/seeker', nextUrl));
                 }
             }
 

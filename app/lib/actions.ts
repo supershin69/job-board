@@ -6,6 +6,7 @@ import z from "zod";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { auth } from "@/auth";
 
 const registerSchema = z.object({
     name: z.string().min(2).max(100),
@@ -54,20 +55,30 @@ export async function registerUser(formData: FormData) {
 }
 
 export async function loginUser(formData: FormData) {
-    try {
-        await signIn("credentials", formData);
-    } catch (error) {
-        if (error instanceof AuthError) {
-            switch (error.type) {
-                case "CredentialsSignin":
-                    console.log("Invalid email or password");
-                    break;
-                default:
-                    console.error("An unexpected error occurred. Please try again.");
-                    break;
-            }
-        }
+  const email = formData.get('email') as string;
 
-        throw error;
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return redirect('/login?error=CredentialsSignin');
     }
+
+    await signIn('credentials', {
+      email,
+      password: formData.get('password'),
+      redirect: false,
+    });
+
+    if (user.role === 'admin') redirect('/dashboard/admin');
+    if (user.role === 'employer') redirect('/dashboard/employer');
+    if (user.role === 'job_seeker') redirect('/dashboard/seeker');
+
+    redirect('/dashboard');
+  } catch (error) {
+    if (error instanceof AuthError) {
+      redirect('/login?error=CredentialsSignin');
+    }
+    throw error;
+  }
 }
