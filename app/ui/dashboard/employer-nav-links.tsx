@@ -3,10 +3,10 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
-import { User, NotebookPen, Send } from "lucide-react";
+import { User, NotebookPen, Send, ChartNoAxesColumnIncreasing } from "lucide-react";
 
 const links = [
-    { name: "General", href: "/dashboard/employer", icon: User},
+    { name: "General", href: "/dashboard/employer", icon: ChartNoAxesColumnIncreasing},
     { name: "Profile", href: "/dashboard/employer/profile", icon: User },
     { name: "Post Job", href: "/dashboard/employer/post-job", icon: Send },
     { name: "Your Posted Jobs", href: "/dashboard/employer/posted-jobs", icon: NotebookPen },

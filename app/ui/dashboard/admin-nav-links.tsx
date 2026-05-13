@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { FileCog, OctagonAlert, User, UserCog } from "lucide-react";
+import { FileCog, OctagonAlert, User, UserCog, ChartNoAxesColumnIncreasing } from "lucide-react";
 
 const links = [
-    { name: "General", href: "/dashboard/admin", icon: User},
+    { name: "General", href: "/dashboard/admin", icon: ChartNoAxesColumnIncreasing},
     { name: "Profile", href: "/dashboard/admin/profile", icon: User },
     { name: "Manage Users", href: "/dashboard/admin/manage-users", icon: UserCog },
     { name: "Manage Jobs", href: "/dashboard/admin/manage-jobs", icon: FileCog },
